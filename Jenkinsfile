@@ -1,31 +1,38 @@
 pipeline {
     agent any
-
     stages {
-        stage('Checkout') {
+        stage('Terraform Init') {
             steps {
-                checkout scm
-            }
-        }
-    
-        stage ("terraform init") {
-            steps {
-                sh ("terraform init -reconfigure") 
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: '69530e43-f60c-4ad3-aab4-5abe394bb288'
+                ]]) {
+                    sh 'terraform init -reconfigure'
+                }
             }
         }
         
-        stage ("plan") {
+        stage('Terraform Plan') {
             steps {
-                sh ('terraform plan') 
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: '69530e43-f60c-4ad3-aab4-5abe394bb288'
+                ]]) {
+                    sh 'terraform plan'
+                }
             }
         }
 
-        stage (" Action") {
+        stage('Terraform Action') {
             steps {
-                echo "Terraform action is --> ${action}"
-                sh ('terraform ${action} --auto-approve') 
-           }
+                echo "Terraform action is --> ${params.action}"
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: '69530e43-f60c-4ad3-aab4-5abe394bb288'
+                ]]) {
+                    sh "terraform ${params.action} --auto-approve"
+                }
+            }
         }
     }
 }
-    
