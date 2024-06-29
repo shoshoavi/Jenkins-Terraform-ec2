@@ -12,4 +12,3 @@ resource "aws_instance" "tf_instance" {
     Name = "myjenkisterraforminstance"
   }
 }
-
